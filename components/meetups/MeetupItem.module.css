@@ -1,5 +1,6 @@
 .item {
   margin: 1rem 0;
+  list-style: none;
 }
 
 .image {
@@ -44,3 +45,4 @@
 .actions button:active {
   background-color: #ffe2ed;
 }
+
