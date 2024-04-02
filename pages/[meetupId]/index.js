@@ -1,46 +1,55 @@
-import { useRouter } from "next/router";
+import { MongoClient, ObjectId } from "mongodb";
 import MeetupDetails from "../../components/meetups/MeetupDetails";
 
 function MeetupDetailsPage (props) {
-    // const meetupId = useRouter().query.meetupId;
-    // const meetupData = DUMMY_MEETUPS[meetupId-1];
     return <MeetupDetails title={props.meetupData.title} image={props.meetupData.image} address={props.meetupData.address} description={props.meetupData.description} />
 }
 
 export async function getStaticPaths(){
+    let meetups = [];
+    try{
+        const client = await MongoClient.connect(`${process.env.MONGODB_CONN_URL}`);
+        const db = client.db();
+        const meetupsCollection = db.collection('meetups');
+        meetups = await meetupsCollection.find({}, {_id: 1}).toArray();
+        client.close();
+    }
+    catch(err){
+        console.log(err);
+    }
     return {
-        fallback: false,
-        paths: [
-            {
-                params: {
-                    meetupId: 'm1',
-                }
-            },
-            {
-                params: {
-                    meetupId: 'm2',
-                }
-            },
-            {
-                params: {
-                    meetupId: 'm3',
-                }
+        fallback: true,
+        paths: meetups.map(meetup => ({
+            params: {
+                meetupId: meetup._id.toString()
             }
-        ]
+        }))
     }
 }
 
 export async function getStaticProps(context){
-    const meetupId = context.params.meetupId;
-    console.log(meetupId);
+    let meetup = {};
+    try{
+        const meetupId = context.params.meetupId;
+        console.log(meetupId);
+
+        const client = await MongoClient.connect(`${process.env.MONGODB_CONN_URL}`);
+        const db = client.db();
+        const meetupsCollection = db.collection('meetups');
+        meetup = await meetupsCollection.findOne({_id: new ObjectId(meetupId)});
+        client.close();
+    }
+    catch(err){
+        console.log(err);
+    }
     return {
         props:{
             meetupData: {
-                id: meetupId,
-                title: 'First Meetup',
-                image: 'https://apnayatra.com/wp-content/uploads/2023/08/Gateway-of-India-Mumbai8.jpg',
-                address: 'Gateway of India, Mumbai',
-                description: 'This is the first meetup',
+                id: meetup._id.toString(),
+                title: meetup.title,
+                image: meetup.image,
+                address: meetup.address,
+                description: meetup.description,
             }
         }
     }

@@ -1,5 +1,5 @@
-import axios from "axios";
 import MeetupList from "../components/meetups/MeetupList";
+import { MongoClient } from "mongodb";
 
 function HomePage(props){
     return <MeetupList meetups={props.meetups}></MeetupList>
@@ -9,18 +9,24 @@ function HomePage(props){
 export async function getStaticProps(){
     let meetupsData = [];
     try{
-        const res = await axios.get('http://localhost:3000/api/meetups');
-        meetupsData = res.data.meetups;
+        const client = await MongoClient.connect(`${process.env.MONGODB_CONN_URL}`);
+        const db = client.db();
+        const meetupsCollection = db.collection('meetups');
+        meetupsData = await meetupsCollection.find().toArray();
+        client.close();
     }
     catch(err){
-        if(err.response && err.response.data)
-            alert(err.response.data.message);
         console.log(err);
-        return alert('error');
     }
     return {
         props: {
-            meetups: meetupsData,
+            meetups: meetupsData.map(meetup => ({
+                id: meetup._id.toString(),
+                title: meetup.title,
+                image: meetup.image,
+                address: meetup.address,
+                decription: meetup.description,
+            })),
         },
         revalidate: 1,
     }
