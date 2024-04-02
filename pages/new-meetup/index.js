@@ -1,6 +1,8 @@
 import axios from 'axios';
 import NewMeetupForm from '../../components/meetups/NewMeetupForm';
 import { useRouter } from 'next/router';
+import Head from 'next/head';
+import { Fragment } from 'react';
 
 function newMeetupPage(){
     const router = useRouter();
@@ -16,7 +18,15 @@ function newMeetupPage(){
             }
         }
     }
-    return <NewMeetupForm onAddMeetup={addNewMeetup} />;
+    return (
+        <Fragment>
+            <Head>
+                <title>Add a new meetup</title>
+                <meta name="description" content="Meet new people by creating your own meetup" />
+            </Head>
+            <NewMeetupForm onAddMeetup={addNewMeetup} />;
+        </Fragment>
+    );
 }
 
 export default newMeetupPage;

@@ -1,8 +1,18 @@
+import { Fragment } from "react";
 import MeetupList from "../components/meetups/MeetupList";
 import { MongoClient } from "mongodb";
+import Head from "next/head";
 
 function HomePage(props){
-    return <MeetupList meetups={props.meetups}></MeetupList>
+    return (
+        <Fragment>
+            <Head>
+                <title>React Meetups</title>
+                <meta name="description" content="Meet, Greet and Enjoy random Meetups!" />
+            </Head>
+            <MeetupList meetups={props.meetups}></MeetupList>
+        </Fragment>
+    )
 }
 
 //For static rendering(during build). below loads props, only for PAGES, Called first during the build process
