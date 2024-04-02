@@ -1,5 +1,7 @@
 import { MongoClient, ObjectId } from "mongodb";
 import MeetupDetails from "../../components/meetups/MeetupDetails";
+import Head from "next/head";
+import { Fragment } from "react";
 
 function MeetupDetailsPage (props) {
     return (
@@ -36,10 +38,15 @@ export async function getStaticPaths(){
 }
 
 export async function getStaticProps(context){
-    let meetup = {};
+    let meetup = {
+        _id: '',
+        image: '',
+        title: '',
+        address: '',
+        description: '',
+    };
     try{
         const meetupId = context.params.meetupId;
-        console.log(meetupId);
 
         const client = await MongoClient.connect(`${process.env.MONGODB_CONN_URL}`);
         const db = client.db();
