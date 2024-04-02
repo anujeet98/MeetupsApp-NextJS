@@ -21,14 +21,14 @@ export async function getStaticPaths(){
         const client = await MongoClient.connect(`${process.env.MONGODB_CONN_URL}`);
         const db = client.db();
         const meetupsCollection = db.collection('meetups');
-        meetups = await meetupsCollection.find({}, {_id: 1}).toArray();
+        meetups = await meetupsCollection.find({}, { _id: 1 }).toArray();
         client.close();
     }
     catch(err){
         console.log(err);
     }
     return {
-        fallback: true,
+        fallback: 'blocking',
         paths: meetups.map(meetup => ({
             params: {
                 meetupId: meetup._id.toString()
@@ -38,35 +38,28 @@ export async function getStaticPaths(){
 }
 
 export async function getStaticProps(context){
-    let meetup = {
-        _id: '',
-        image: '',
-        title: '',
-        address: '',
-        description: '',
-    };
     try{
         const meetupId = context.params.meetupId;
 
         const client = await MongoClient.connect(`${process.env.MONGODB_CONN_URL}`);
         const db = client.db();
         const meetupsCollection = db.collection('meetups');
-        meetup = await meetupsCollection.findOne({_id: new ObjectId(meetupId)});
+        const meetup = await meetupsCollection.findOne({_id: new ObjectId(meetupId)});
         client.close();
+        return {
+            props:{
+                meetupData: {
+                    id: meetup._id.toString(),
+                    title: meetup.title,
+                    image: meetup.image,
+                    address: meetup.address,
+                    description: meetup.description,
+                }
+            }
+        }
     }
     catch(err){
         console.log(err);
-    }
-    return {
-        props:{
-            meetupData: {
-                id: meetup._id.toString(),
-                title: meetup.title,
-                image: meetup.image,
-                address: meetup.address,
-                description: meetup.description,
-            }
-        }
     }
 }
 export default MeetupDetailsPage;   
