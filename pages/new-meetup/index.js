@@ -8,7 +8,7 @@ function newMeetupPage(){
     const router = useRouter();
     const addNewMeetup = async(meetupData) => {
         try{
-            const res = await axios.post('http://localhost:3000/api/new-meetup', meetupData);
+            const res = await axios.post('/api/new-meetup', meetupData);
             alert(res.data.message);
             router.push('/');
         }
